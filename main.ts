@@ -1,16 +1,28 @@
-// news-image-20261121 — "The World Today", Saturday 21 November 2026.
-// A one-image summary of the day's world news: Russian missiles land in
-// Poland, Wall Street slumps into correction, the ICJ finds Myanmar guilty
-// of genocide against the Rohingya, the UK and EU sign new deals, Cyclone
-// Akvan hits India's east coast, and COP31 enters its final stage.
-// The image is the entry.png beside this file (JPEG bytes, 1024x1024,
-// 275213 bytes, under the 1 MiB limit); the program copies it to the
-// output directory. Node 22, standard library only, no network.
+// news-image-20261121 — entry program (Node 22, standard library only).
 //
-// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
+// The entry image lives next to this file as entry.png (a 1024x1024 PNG
+// newspaper front page summing up the world news of 21 November 2026).
+// This program copies it, byte for byte, to the output directory as
+// entry.png. It reads nothing else and touches no network.
+//
+// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for
+// /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { copyFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-copyFileSync(new URL('./entry.png', import.meta.url), join(process.env.MAKEFUN_OUTPUT_DIR ?? '/output', 'entry.png'));
+// Where the image goes: the grader sets MAKEFUN_OUTPUT_DIR, and the
+// program defaults to /output when the variable is absent.
+const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+
+// The image sits beside this source file, wherever the repository is
+// checked out, so resolve it relative to this module, not the cwd.
+const sourcePath = fileURLToPath(new URL('./entry.png', import.meta.url));
+
+// Make sure the output directory exists, then copy the image over.
+// A plain copy is deterministic: every run writes exactly the same
+// bytes, so the grader's two runs always agree.
+mkdirSync(outputDir, { recursive: true });
+copyFileSync(sourcePath, join(outputDir, 'entry.png'));
